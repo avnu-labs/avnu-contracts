@@ -49,7 +49,7 @@ func __setup__{syscall_ptr: felt*, range_check_ptr}() {
     %{
         context.contract_address = deploy_contract("./src/AVNUExchange.cairo").contract_address
         ids.contract_address = context.contract_address
-        context.adapter_class_hash = declare("./tests/mocks/MockSwapAdapter.cairo").class_hash
+        context.adapter_class_hash = declare("./src/adapters/JediSwapAdapter.cairo").class_hash
         ids.adapter_class_hash = context.adapter_class_hash
         context.owner = ids.owner
     %}
@@ -57,6 +57,9 @@ func __setup__{syscall_ptr: felt*, range_check_ptr}() {
     IAVNUExchange.initializer(contract_address, owner, fee_collector_address);
     %{ stop_prank_callable = start_prank(ids.owner, target_contract_address=ids.contract_address) %}
     IAVNUExchange.setAdapterClassHash(contract_address, 0x12, adapter_class_hash);
+    IAVNUExchange.setAdapterClassHash(contract_address, 0x13, adapter_class_hash);
+    IAVNUExchange.setAdapterClassHash(contract_address, 0x14, adapter_class_hash);
+    IAVNUExchange.setAdapterClassHash(contract_address, 0x15, adapter_class_hash);
     %{ stop_prank_callable() %}
     return ();
 }
@@ -105,10 +108,10 @@ func test__setAdapterClassHash__should_set_adapter_hash{
     %{ start_prank(context.owner, target_contract_address=ids.contract_address) %}
 
     // When
-    IAVNUExchange.setAdapterClassHash(contract_address, 0x13, 0x1234);
+    IAVNUExchange.setAdapterClassHash(contract_address, 0x16, 0x1234);
 
     // Then
-    let (hash) = IAVNUExchange.getAdapterClassHash(contract_address, 0x13);
+    let (hash) = IAVNUExchange.getAdapterClassHash(contract_address, 0x16);
     assert hash = 0x1234;
     return ();
 }
@@ -176,7 +179,48 @@ func test__setFeeCollectorAddress__should_fail_when_caller_is_not_the_owner{
 }
 
 @view
-func test__multi_route_swap{
+func test__multi_route_swap__should_succeed__when_1_route{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, bitwise_ptr: BitwiseBuiltin*
+}() {
+    // Given
+    alloc_locals;
+    tempvar contract_address;
+    %{ ids.contract_address = context.contract_address %}
+    let token_from_address = 0x1;
+    let token_from_amount = Uint256(10, 0);
+    let token_to_address = 0x2;
+    let token_to_min_amount = Uint256(9, 0);
+    let (routes: Route*) = alloc();
+    assert routes[0] = Route(token_from=0x1, token_to=0x2, exchange_address=0x12, percent=100);
+    %{ mock_call(0x1, "balanceOf", [0,0]) %}  // TODO: wrong amount, can't mock and give multiple responses
+    %{ mock_call(0x2, "balanceOf", [10,0]) %}
+    %{ mock_call(0x1, "transferFrom", [1]) %}
+    %{ mock_call(0x2, "transfer", [1]) %}
+    %{ mock_call(0x1, "approve", [1]) %}
+    %{ mock_call(0x12, "swap_exact_tokens_for_tokens", [1, 1, 0]) %}
+    let fee_collector_address = 0x01234;
+    %{ mock_call(0x1234, "feeInfo", [0, 0, 0]) %}
+
+    // When
+    let (result) = IAVNUExchange.multi_route_swap(
+        contract_address,
+        token_from_address,
+        token_from_amount,
+        token_to_address,
+        token_to_min_amount,
+        0,
+        0,
+        1,
+        routes,
+    );
+
+    // Then
+    assert result = TRUE;
+    return ();
+}
+
+@view
+func test__multi_route_swap__should_succeed__when_2_routes{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, bitwise_ptr: BitwiseBuiltin*
 }() {
     // Given
@@ -195,7 +239,9 @@ func test__multi_route_swap{
     %{ mock_call(0x3, "balanceOf", [10,0]) %}
     %{ mock_call(0x1, "transferFrom", [1]) %}
     %{ mock_call(0x3, "transfer", [1]) %}
-
+    %{ mock_call(0x1, "approve", [1]) %}
+    %{ mock_call(0x2, "approve", [1]) %}
+    %{ mock_call(0x12, "swap_exact_tokens_for_tokens", [1, 1, 0]) %}
     let fee_collector_address = 0x01234;
     %{ mock_call(0x1234, "feeInfo", [0, 0, 0]) %}
 
@@ -209,6 +255,66 @@ func test__multi_route_swap{
         0,
         0,
         2,
+        routes,
+    );
+
+    // Then
+    assert result = TRUE;
+    return ();
+}
+
+@view
+func test__multi_route_swap__should_succeed__when_10_routes{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, bitwise_ptr: BitwiseBuiltin*
+}() {
+    // Given
+    alloc_locals;
+    tempvar contract_address;
+    %{ ids.contract_address = context.contract_address %}
+    let token_from_address = 0x1;
+    let token_from_amount = Uint256(10, 0);
+    let token_to_address = 0x5;
+    let token_to_min_amount = Uint256(9, 0);
+    let (routes: Route*) = alloc();
+    assert routes[0] = Route(token_from=0x1, token_to=0x2, exchange_address=0x12, percent=25);
+    assert routes[1] = Route(token_from=0x2, token_to=0x3, exchange_address=0x12, percent=100);
+    assert routes[2] = Route(token_from=0x3, token_to=0x4, exchange_address=0x12, percent=100);
+    assert routes[3] = Route(token_from=0x4, token_to=0x5, exchange_address=0x12, percent=100);
+    assert routes[4] = Route(token_from=0x1, token_to=0x2, exchange_address=0x13, percent=33);
+    assert routes[5] = Route(token_from=0x2, token_to=0x3, exchange_address=0x13, percent=100);
+    assert routes[6] = Route(token_from=0x3, token_to=0x4, exchange_address=0x13, percent=100);
+    assert routes[7] = Route(token_from=0x4, token_to=0x5, exchange_address=0x13, percent=100);
+    assert routes[8] = Route(token_from=0x1, token_to=0x5, exchange_address=0x14, percent=50);
+    assert routes[9] = Route(token_from=0x1, token_to=0x5, exchange_address=0x15, percent=100);
+    %{ mock_call(0x1, "balanceOf", [0,0]) %}  // TODO: wrong amount, can't mock and give multiple responses
+    %{ mock_call(0x2, "balanceOf", [0,0]) %}
+    %{ mock_call(0x3, "balanceOf", [0,0]) %}
+    %{ mock_call(0x4, "balanceOf", [0,0]) %}
+    %{ mock_call(0x5, "balanceOf", [10,0]) %}
+    %{ mock_call(0x1, "transferFrom", [1]) %}
+    %{ mock_call(0x5, "transfer", [1]) %}
+    %{ mock_call(0x1, "approve", [1]) %}
+    %{ mock_call(0x2, "approve", [1]) %}
+    %{ mock_call(0x3, "approve", [1]) %}
+    %{ mock_call(0x4, "approve", [1]) %}
+    %{ mock_call(0x5, "approve", [1]) %}
+    %{ mock_call(0x12, "swap_exact_tokens_for_tokens", [1, 1, 0]) %}
+    %{ mock_call(0x13, "swap_exact_tokens_for_tokens", [1, 1, 0]) %}
+    %{ mock_call(0x14, "swap_exact_tokens_for_tokens", [1, 1, 0]) %}
+    %{ mock_call(0x15, "swap_exact_tokens_for_tokens", [1, 1, 0]) %}
+    let fee_collector_address = 0x01234;
+    %{ mock_call(0x1234, "feeInfo", [0, 0, 0]) %}
+
+    // When
+    let (result) = IAVNUExchange.multi_route_swap(
+        contract_address,
+        token_from_address,
+        token_from_amount,
+        token_to_address,
+        token_to_min_amount,
+        0,
+        0,
+        10,
         routes,
     );
 
