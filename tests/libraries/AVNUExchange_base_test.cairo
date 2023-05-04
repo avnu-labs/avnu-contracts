@@ -273,7 +273,7 @@ func test__collect_avnu_fees_bps__should_not_collect_avnu_fees_when_not_active{
     %{ mock_call(0x1234, "feeInfo", [0,0,30]) %}
 
     // When
-    let (amount_including_fees) = AVNUExchange._collect_fees(amount, token_from_address, 0, 0, 0);
+    let (amount_including_fees) = AVNUExchange._collect_fees(amount, token_from_address, 0, 0);
 
     // Then
     assert amount_including_fees = amount;
@@ -295,7 +295,7 @@ func test__collect_avnu_fees_bps__should_collect_avnu_fees_in_bps{
     %{ mock_call(0x1234, "feeInfo", [1,0,30]) %}
 
     // When
-    let (amount_including_fees) = AVNUExchange._collect_fees(amount, token_from_address, 0, 0, 0);
+    let (amount_including_fees) = AVNUExchange._collect_fees(amount, token_from_address, 0, 0);
 
     // Then
     assert amount_including_fees = 997;
@@ -318,7 +318,7 @@ func test__collect_integrator_fees_bps__should_not_collect_integrator_fees_when_
 
     // When
     let (amount_including_fees) = AVNUExchange._collect_fees(
-        amount, token_from_address, fees_bps, 0, 0
+        amount, token_from_address, fees_bps, 0
     );
 
     // Then
@@ -343,7 +343,7 @@ func test__collect_integrator_fees_bps__should_collect_integrator_fees_in_bps{
 
     // When
     let (amount_including_fees) = AVNUExchange._collect_fees(
-        amount, token_from_address, fees_bps, integrator_fee_recipient, 0
+        amount, token_from_address, fees_bps, integrator_fee_recipient
     );
 
     // Then
@@ -368,7 +368,7 @@ func test__collect_avnu_and_integrator_fees_bps__should_collect_avnu_and_integra
 
     // When
     let (amount_including_fees) = AVNUExchange._collect_fees(
-        amount, token_from_address, fees_bps, integrator_fee_recipient, 0
+        amount, token_from_address, fees_bps, integrator_fee_recipient
     );
 
     // Then
