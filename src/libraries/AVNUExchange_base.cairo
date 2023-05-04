@@ -105,7 +105,6 @@ namespace AVNUExchange {
             token_from_address,
             integrator_fee_amount_bps,
             integrator_fee_recipient,
-            0,
         );
 
         // Swap
@@ -209,7 +208,6 @@ namespace AVNUExchange {
         token_address: felt,
         fee_amount_bps: felt,
         fee_recipient: felt,
-        collect_from_address: felt,
         is_base_active: felt,
     ) -> (fees_collected: Uint256) {
         alloc_locals;
@@ -231,18 +229,8 @@ namespace AVNUExchange {
                 big_amount, Uint256(10000, 0)
             );
 
-            let collect_from_external = is_not_zero(collect_from_address);
-
-            // Send fees to fee recipient
-            if (collect_from_external == TRUE) {
-                // Collect fees from external source (should be approved)
-                IERC20.transferFrom(
-                    token_address, collect_from_address, fee_recipient, fees_amount
-                );
-            } else {
-                // Collect fees from contract
-                IERC20.transfer(token_address, fee_recipient, fees_amount);
-            }
+            // Collect fees from contract
+            IERC20.transfer(token_address, fee_recipient, fees_amount);
 
             // see https://www.cairo-lang.org/docs/how_cairo_works/builtins.html?highlight=builtins#revoked-implicit-arguments
             tempvar range_check_ptr = range_check_ptr;
@@ -268,7 +256,6 @@ namespace AVNUExchange {
         token_address: felt,
         integrator_fee_amount_bps: felt,
         integrator_fee_recipient: felt,
-        collect_from_address: felt,
     ) -> (amount_including_fees: felt) {
         alloc_locals;
 
@@ -283,7 +270,6 @@ namespace AVNUExchange {
             token_address,
             integrator_fee_amount_bps,
             integrator_fee_recipient,
-            collect_from_address,
             TRUE,
         );
 
@@ -294,7 +280,6 @@ namespace AVNUExchange {
             token_address,
             avnu_fee_amount_bps,
             avnu_fee_collector_address,
-            collect_from_address,
             is_avnu_fee_active,
         );
 
