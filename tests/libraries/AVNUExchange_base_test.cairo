@@ -87,7 +87,7 @@ func test__multi_route_swap__should_call_swap{
     let (routes: Route*) = alloc();
     assert routes[0] = Route(token_from=0x1, token_to=0x2, exchange_address=0x12, percent=100);
 
-    %{ mock_call(0x1, "balanceOf", [0,0]) %}  // TODO: wrong amount, can't mock and give multiple responses
+    %{ mock_call(0x1, "balanceOf", [0,0]) %}
     %{ mock_call(0x2, "balanceOf", [10,0]) %}
     %{ mock_call(0x1, "transferFrom", [1]) %}
     %{ mock_call(0x2, "transfer", [1]) %}
@@ -99,6 +99,7 @@ func test__multi_route_swap__should_call_swap{
         token_from_amount,
         token_to_address,
         token_to_min_amount,
+        0x1,
         0,
         0,
         routes,
@@ -134,6 +135,7 @@ func test__multi_route_swap__should_fail_insufficient_tokens_received{
         token_from_amount,
         token_to_address,
         token_to_min_amount,
+        0x1,
         0,
         0,
         routes,
@@ -159,9 +161,6 @@ func test__apply_routes__should_call_swap{
     %{ mock_call(0x2, "balanceOf", [10,0]) %}
     %{ mock_call(0x3, "balanceOf", [10,0]) %}
     %{ mock_call(0x4, "balanceOf", [10,0]) %}
-
-    // TODO: expect_call does not work with library_call
-    // %{ assert_swap_1_called = expect_call(context.adapter_class_hash, "swap", [0x12, 1, 6,0,3,0,0,4]) %}
 
     // When
     let (result) = AVNUExchange._apply_routes(routes, 6);

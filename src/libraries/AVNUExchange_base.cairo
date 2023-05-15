@@ -20,7 +20,12 @@ from src.libraries.interfaces.IAVNUFeeCollector import IAVNUFeeCollector
 //
 @event
 func Swap(
-    taker_address: felt, sell_address: felt, sell_amount: felt, buy_address: felt, buy_amount: felt
+    taker_address: felt,
+    sell_address: felt,
+    sell_amount: felt,
+    buy_address: felt,
+    buy_amount: felt,
+    beneficiary: felt,
 ) {
 }
 
@@ -84,6 +89,7 @@ namespace AVNUExchange {
         token_from_amount: Uint256,
         token_to_address: felt,
         token_to_min_amount: Uint256,
+        beneficiary: felt,
         integrator_fee_amount_bps: felt,
         integrator_fee_recipient: felt,
         routes: Route*,
@@ -123,7 +129,7 @@ namespace AVNUExchange {
         _assert_no_lost_tokens(routes, routes_len, token_to_address);
 
         // Transfer tokens to user
-        IERC20.transfer(token_to_address, caller_address, received_token_to);
+        IERC20.transfer(token_to_address, beneficiary, received_token_to);
 
         // Emit event
         Swap.emit(
@@ -132,6 +138,7 @@ namespace AVNUExchange {
             token_from_amount.low,
             token_to_address,
             received_token_to.low,
+            beneficiary,
         );
 
         return (TRUE,);
@@ -266,11 +273,7 @@ namespace AVNUExchange {
 
         // ---------------- Integrator fees ---------------- //
         let (integrator_fees_collected) = _collect_fee_bps(
-            amount,
-            token_address,
-            integrator_fee_amount_bps,
-            integrator_fee_recipient,
-            TRUE,
+            amount, token_address, integrator_fee_amount_bps, integrator_fee_recipient, TRUE
         );
 
         // ---------------- AVNU fees ---------------- //
