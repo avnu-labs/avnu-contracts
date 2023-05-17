@@ -8,10 +8,9 @@ from src.libraries.structs.Route import Route
 
 @external
 func __setup__{syscall_ptr: felt*, range_check_ptr, pedersen_ptr: HashBuiltin*}() {
-    let owner = 0x1234;
     let fee_type = 0x0;
     let fee_amount = 0x5;
-    AVNUFeeCollector.initialize(owner, fee_type, fee_amount);
+    AVNUFeeCollector.initialize(fee_type, fee_amount);
     %{ context.token_address = deploy_contract("./tests/mocks/MockToken.cairo").contract_address %}
     return ();
 }
