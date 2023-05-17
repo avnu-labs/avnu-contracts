@@ -163,7 +163,7 @@ func test__apply_routes__should_call_swap{
     %{ mock_call(0x4, "balanceOf", [10,0]) %}
 
     // When
-    let (result) = AVNUExchange._apply_routes(routes, 6);
+    let (result) = AVNUExchange._apply_routes(routes, 6, 0x0);
     // %{ assert_swap_1_called() %}
 
     // Then
@@ -183,77 +183,7 @@ func test__apply_routes__should_fail_when_exchange_is_unknown{
 
     // When & Then
     %{ expect_revert(error_message="Unknown exchange") %}
-    let (result) = AVNUExchange._apply_routes(routes, 1);
-    return ();
-}
-
-@external
-func test__assert_no_lost_tokens__should_verify_each_token_balances{
-    syscall_ptr: felt*, range_check_ptr, pedersen_ptr: HashBuiltin*
-}() {
-    // Given
-    alloc_locals;
-    let (routes: Route*) = alloc();
-    assert routes[0] = Route(token_from=0x1, token_to=0x2, exchange_address=0x12, percent=100);
-    assert routes[1] = Route(token_from=0x2, token_to=0x3, exchange_address=0x12, percent=33);
-    assert routes[2] = Route(token_from=0x2, token_to=0x3, exchange_address=0x11, percent=50);
-    assert routes[3] = Route(token_from=0x2, token_to=0x4, exchange_address=0x12, percent=100);
-    assert routes[4] = Route(token_from=0x3, token_to=0x5, exchange_address=0x12, percent=100);
-    assert routes[5] = Route(token_from=0x4, token_to=0x5, exchange_address=0x12, percent=100);
-    %{ mock_call(0x1, "balanceOf", [0,0]) %}
-    %{ mock_call(0x2, "balanceOf", [0,0]) %}
-    %{ mock_call(0x3, "balanceOf", [0,0]) %}
-    %{ mock_call(0x4, "balanceOf", [0,0]) %}
-
-    // When & Then
-    AVNUExchange._assert_no_lost_tokens(routes, 6, 0x5);
-    return ();
-}
-
-@external
-func test__assert_no_lost_tokens__should_not_fail_when_token_to_is_token_from{
-    syscall_ptr: felt*, range_check_ptr, pedersen_ptr: HashBuiltin*
-}() {
-    // Given
-    alloc_locals;
-    let (routes: Route*) = alloc();
-    assert routes[0] = Route(token_from=0x1, token_to=0x2, exchange_address=0x12, percent=100);
-    assert routes[1] = Route(token_from=0x2, token_to=0x3, exchange_address=0x12, percent=33);
-    assert routes[2] = Route(token_from=0x2, token_to=0x3, exchange_address=0x11, percent=50);
-    assert routes[3] = Route(token_from=0x2, token_to=0x4, exchange_address=0x12, percent=100);
-    assert routes[4] = Route(token_from=0x3, token_to=0x1, exchange_address=0x12, percent=100);
-    assert routes[5] = Route(token_from=0x4, token_to=0x1, exchange_address=0x12, percent=100);
-    %{ mock_call(0x1, "balanceOf", [10,0]) %}
-    %{ mock_call(0x2, "balanceOf", [0,0]) %}
-    %{ mock_call(0x3, "balanceOf", [0,0]) %}
-    %{ mock_call(0x4, "balanceOf", [0,0]) %}
-
-    // When & Then
-    AVNUExchange._assert_no_lost_tokens(routes, 6, 0x1);
-    return ();
-}
-
-@external
-func test__assert_no_lost_tokens__should_fail_when_contract_has_intermediary_some_tokens{
-    syscall_ptr: felt*, range_check_ptr, pedersen_ptr: HashBuiltin*
-}() {
-    // Given
-    alloc_locals;
-    let (routes: Route*) = alloc();
-    assert routes[0] = Route(token_from=0x1, token_to=0x2, exchange_address=0x12, percent=100);
-    assert routes[1] = Route(token_from=0x2, token_to=0x3, exchange_address=0x12, percent=33);
-    assert routes[2] = Route(token_from=0x2, token_to=0x3, exchange_address=0x11, percent=50);
-    assert routes[3] = Route(token_from=0x2, token_to=0x4, exchange_address=0x12, percent=50);
-    assert routes[4] = Route(token_from=0x3, token_to=0x5, exchange_address=0x12, percent=100);
-    assert routes[5] = Route(token_from=0x4, token_to=0x5, exchange_address=0x12, percent=100);
-    %{ mock_call(0x1, "balanceOf", [0,0]) %}
-    %{ mock_call(0x2, "balanceOf", [2,0]) %}
-    %{ mock_call(0x3, "balanceOf", [0,0]) %}
-    %{ mock_call(0x4, "balanceOf", [0,0]) %}
-
-    // When & Then
-    %{ expect_revert(error_message="Invalid routes percentages") %}
-    AVNUExchange._assert_no_lost_tokens(routes, 6, 0x5);
+    let (result) = AVNUExchange._apply_routes(routes, 1, 0x0);
     return ();
 }
 
