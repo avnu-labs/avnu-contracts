@@ -62,8 +62,8 @@ This repository is using [Protostar](https://docs.swmansion.com/protostar/) to i
 protostar install
 
 # Run the tests
-protostar test
+protostar test-cairo0
 
 # Build contracts
-protostar build
+protostar build-cairo0
 ```
