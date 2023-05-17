@@ -27,6 +27,7 @@ namespace IAVNUExchange {
         token_from_amount: Uint256,
         token_to_address: felt,
         token_to_min_amount: Uint256,
+        beneficiary: felt,
         integrator_fee_amount_bps: felt,
         integrator_fee_recipient: felt,
         routes_len: felt,
@@ -192,7 +193,7 @@ func test__multi_route_swap__should_succeed__when_1_route{
     let token_to_min_amount = Uint256(9, 0);
     let (routes: Route*) = alloc();
     assert routes[0] = Route(token_from=0x1, token_to=0x2, exchange_address=0x12, percent=100);
-    %{ mock_call(0x1, "balanceOf", [0,0]) %}  // TODO: wrong amount, can't mock and give multiple responses
+    %{ mock_call(0x1, "balanceOf", [0,0]) %}
     %{ mock_call(0x2, "balanceOf", [10,0]) %}
     %{ mock_call(0x1, "transferFrom", [1]) %}
     %{ mock_call(0x2, "transfer", [1]) %}
@@ -208,6 +209,7 @@ func test__multi_route_swap__should_succeed__when_1_route{
         token_from_amount,
         token_to_address,
         token_to_min_amount,
+        0x1,
         0,
         0,
         1,
@@ -234,8 +236,8 @@ func test__multi_route_swap__should_succeed__when_2_routes{
     let (routes: Route*) = alloc();
     assert routes[0] = Route(token_from=0x1, token_to=0x2, exchange_address=0x12, percent=100);
     assert routes[1] = Route(token_from=0x2, token_to=0x3, exchange_address=0x12, percent=100);
-    %{ mock_call(0x1, "balanceOf", [0,0]) %}  // TODO: wrong amount, can't mock and give multiple responses
-    %{ mock_call(0x2, "balanceOf", [0,0]) %}  // TODO: wrong amount, can't mock and give multiple responses
+    %{ mock_call(0x1, "balanceOf", [0,0]) %}
+    %{ mock_call(0x2, "balanceOf", [0,0]) %}
     %{ mock_call(0x3, "balanceOf", [10,0]) %}
     %{ mock_call(0x1, "transferFrom", [1]) %}
     %{ mock_call(0x3, "transfer", [1]) %}
@@ -252,6 +254,7 @@ func test__multi_route_swap__should_succeed__when_2_routes{
         token_from_amount,
         token_to_address,
         token_to_min_amount,
+        0x1,
         0,
         0,
         2,
@@ -286,7 +289,7 @@ func test__multi_route_swap__should_succeed__when_10_routes{
     assert routes[7] = Route(token_from=0x4, token_to=0x5, exchange_address=0x13, percent=100);
     assert routes[8] = Route(token_from=0x1, token_to=0x5, exchange_address=0x14, percent=50);
     assert routes[9] = Route(token_from=0x1, token_to=0x5, exchange_address=0x15, percent=100);
-    %{ mock_call(0x1, "balanceOf", [0,0]) %}  // TODO: wrong amount, can't mock and give multiple responses
+    %{ mock_call(0x1, "balanceOf", [0,0]) %}
     %{ mock_call(0x2, "balanceOf", [0,0]) %}
     %{ mock_call(0x3, "balanceOf", [0,0]) %}
     %{ mock_call(0x4, "balanceOf", [0,0]) %}
@@ -312,6 +315,7 @@ func test__multi_route_swap__should_succeed__when_10_routes{
         token_from_amount,
         token_to_address,
         token_to_min_amount,
+        0x1,
         0,
         0,
         10,
