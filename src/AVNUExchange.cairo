@@ -56,6 +56,7 @@ func multi_route_swap{
     token_from_address: felt,
     token_from_amount: Uint256,
     token_to_address: felt,
+    token_to_amount: Uint256,
     token_to_min_amount: Uint256,
     beneficiary: felt,
     integrator_fee_amount_bps: felt,
