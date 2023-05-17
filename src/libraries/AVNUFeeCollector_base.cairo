@@ -29,7 +29,7 @@ func FeeAmount() -> (fee_amount: felt) {
 
 namespace AVNUFeeCollector {
     func initialize{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        owner: felt, fee_type: felt, fee_amount: felt
+        fee_type: felt, fee_amount: felt
     ) {
         Initializable.initialize();
         update(fee_type, fee_amount);

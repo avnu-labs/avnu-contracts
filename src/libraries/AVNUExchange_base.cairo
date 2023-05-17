@@ -114,7 +114,7 @@ namespace AVNUExchange {
         );
 
         // Swap
-        _apply_routes(&routes[0], routes_len);
+        _apply_routes(&routes[0], routes_len, contract_address);
 
         // Retrieve amount of token to received
         let (received_token_to) = IERC20.balanceOf(token_to_address, contract_address);
@@ -124,9 +124,6 @@ namespace AVNUExchange {
             let (sufficient: felt) = uint256_le(token_to_min_amount, received_token_to);
             assert sufficient = TRUE;
         }
-
-        // Check no remaining tokens
-        _assert_no_lost_tokens(routes, routes_len, token_to_address);
 
         // Transfer tokens to user
         IERC20.transfer(token_to_address, beneficiary, received_token_to);
@@ -145,14 +142,13 @@ namespace AVNUExchange {
     }
 
     func _apply_routes{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        routes: Route*, routes_len: felt
+        routes: Route*, routes_len: felt, contract_address: felt
     ) -> (routes_len: felt) {
         alloc_locals;
         if (routes_len == 0) {
             return (routes_len,);
         }
         let route: Route = routes[0];
-        let (contract_address) = get_contract_address();
 
         // Calculating tokens to be passed to the exchange
         // percentage should be 2 for 2%
@@ -178,31 +174,7 @@ namespace AVNUExchange {
             contract_address,
         );
 
-        return _apply_routes(&routes[1], routes_len - 1);
-    }
-
-    func _assert_no_lost_tokens{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        routes: Route*, routes_len: felt, last_token: felt
-    ) -> (routes_len: felt) {
-        alloc_locals;
-        if (routes_len == 0) {
-            return (routes_len,);
-        }
-        let (contract_address) = get_contract_address();
-        let route: Route = routes[0];
-        if (route.token_from != last_token) {
-            let (balance) = IERC20.balanceOf(route.token_from, contract_address);
-            with_attr error_message("Invalid routes percentages") {
-                let (is_zero) = uint256_eq(Uint256(0, 0), balance);
-                assert is_zero = TRUE;
-            }
-            tempvar range_check_ptr = range_check_ptr;
-            tempvar syscall_ptr = syscall_ptr;
-        } else {
-            tempvar range_check_ptr = range_check_ptr;
-            tempvar syscall_ptr = syscall_ptr;
-        }
-        return _assert_no_lost_tokens(&routes[1], routes_len - 1, last_token);
+        return _apply_routes(&routes[1], routes_len - 1, contract_address);
     }
 
     func _collect_fee_bps{

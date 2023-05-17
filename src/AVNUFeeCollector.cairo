@@ -12,7 +12,7 @@ from src.libraries.AVNUFeeCollector_base import AVNUFeeCollector
 func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     owner: felt, fee_type: felt, fee_amount: felt
 ) {
-    AVNUFeeCollector.initialize(owner, fee_type, fee_amount);
+    AVNUFeeCollector.initialize(fee_type, fee_amount);
     Proxy.initializer(owner);
     Ownable.initializer(owner);
     return ();
