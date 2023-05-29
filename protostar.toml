@@ -1,0 +1,17 @@
+[project]
+protostar-version = "0.11.0"
+
+lib-path = "lib"
+cairo-path = ["lib/cairo_contracts/src"]
+
+[contracts]
+AVNUExchange = ["./src/AVNUExchange.cairo"]
+AVNUFeeCollector = ["./src/AVNUFeeCollector.cairo"]
+AVNUProxy = ["./src/AVNUProxy.cairo"]
+TenkSwapAdapter = ["./src/adapters/TenkSwapAdapter.cairo"]
+JediSwapAdapter = ["./src/adapters/JediSwapAdapter.cairo"]
+MySwapAdapter = ["./src/adapters/MySwapAdapter.cairo"]
+SithSwapAdapter = ["./src/adapters/SithSwapAdapter.cairo"]
+
+[format]
+target = ["src", "tests"]
