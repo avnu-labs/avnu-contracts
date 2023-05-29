@@ -4,6 +4,10 @@ This repository contains the contracts used by [AVNU](https://www.avnu.fi/). You
 
 If you want to learn more about AVNU, and how we are able to provide the best execution on Starknet, you can visit our [documentation](https://doc.avnu.fi/).
 
+
+> **Warning**
+> Please note that **AVNU** is still in the early stages of development, and the current contracts are written in Cairo 0, which will be deprecated following the Regenesis update. We are in the process of finalizing an improved version of our Cairo 1.0 contract, which will be published shortly. Meanwhile kindly proceed with usage at your own discretion and risk.
+
 ## Structure
 
 - **AVNUExchange**: Handles the swap. It contains all the routing logic
