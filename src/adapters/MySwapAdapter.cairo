@@ -1,10 +1,8 @@
 %lang starknet
 
-from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import assert_not_equal
 from starkware.cairo.common.uint256 import Uint256
-from starkware.starknet.common.syscalls import get_contract_address
 from openzeppelin.token.erc20.IERC20 import IERC20
 
 // This contract implements ISwapAdapter
@@ -47,7 +45,6 @@ func swap{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     let (num) = IMySwapRouter.get_total_number_of_pools(exchange_address);
     let (pool_id) = _get_pool_index(exchange_address, token_from_address, token_to_address, 1, num);
 
-    let (contract_address) = get_contract_address();
     IERC20.approve(token_from_address, exchange_address, token_from_amount);
     IMySwapRouter.swap(
         exchange_address, pool_id, token_from_address, token_from_amount, token_to_min_amount
