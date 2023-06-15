@@ -99,6 +99,11 @@ namespace AVNUExchange {
         let (caller_address) = get_caller_address();
         let (contract_address) = get_contract_address();
 
+        // Check if beneficiary == caller_address
+        with_attr error_message("Beneficiary have to be the caller") {
+            assert beneficiary = caller_address;
+        }
+
         // Transfer tokens to contract
         IERC20.transferFrom(
             token_from_address, caller_address, contract_address, token_from_amount
