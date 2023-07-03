@@ -202,6 +202,7 @@ func test__multi_route_swap__should_succeed__when_1_route{
     %{ mock_call(0x12, "swap_exact_tokens_for_tokens", [1, 1, 0]) %}
     let fee_collector_address = 0x01234;
     %{ mock_call(0x1234, "feeInfo", [0, 0, 0]) %}
+    %{ stop_prank_callable = start_prank(0x1, target_contract_address=ids.contract_address) %}
 
     // When
     let (result) = IAVNUExchange.multi_route_swap(
@@ -248,6 +249,7 @@ func test__multi_route_swap__should_succeed__when_2_routes{
     %{ mock_call(0x12, "swap_exact_tokens_for_tokens", [1, 1, 0]) %}
     let fee_collector_address = 0x01234;
     %{ mock_call(0x1234, "feeInfo", [0, 0, 0]) %}
+    %{ stop_prank_callable = start_prank(0x1, target_contract_address=ids.contract_address) %}
 
     // When
     let (result) = IAVNUExchange.multi_route_swap(
@@ -310,6 +312,7 @@ func test__multi_route_swap__should_succeed__when_10_routes{
     %{ mock_call(0x15, "swap_exact_tokens_for_tokens", [1, 1, 0]) %}
     let fee_collector_address = 0x01234;
     %{ mock_call(0x1234, "feeInfo", [0, 0, 0]) %}
+    %{ stop_prank_callable = start_prank(0x1, target_contract_address=ids.contract_address) %}
 
     // When
     let (result) = IAVNUExchange.multi_route_swap(

@@ -92,6 +92,7 @@ func test__multi_route_swap__should_call_swap{
     %{ mock_call(0x1, "transferFrom", [1]) %}
     %{ mock_call(0x2, "transfer", [1]) %}
     %{ mock_call(0x1234, "feeInfo", [0, 0, 0]) %}
+    %{ stop_prank_callable = start_prank(0x1) %}
 
     // When
     let (result) = AVNUExchange.multi_route_swap(
@@ -127,6 +128,7 @@ func test__multi_route_swap__should_fail_insufficient_tokens_received{
     %{ mock_call(0x2, "balanceOf", [2,0]) %}
     %{ mock_call(0x1, "transferFrom", [1]) %}
     %{ mock_call(0x1234, "feeInfo", [0, 0, 0]) %}
+    %{ stop_prank_callable = start_prank(0x1) %}
 
     // When & Then
     %{ expect_revert(error_message="Insufficient tokens received") %}
